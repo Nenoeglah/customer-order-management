@@ -25,7 +25,7 @@ Integration with Africa's Talking API for SMS notifications
 
 ## Technologies Used
 
-Flask
+Python Flask
 SQLAlchemy
 Flask OIDC for OpenID Connect integration
 Flask CORS for Cross-Origin Resource Sharing

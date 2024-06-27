@@ -1,5 +1,4 @@
 
-
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_oidc import OpenIDConnect
@@ -11,27 +10,31 @@ import africastalking
 from flask.cli import FlaskGroup
 
 
-# Initialize Flask app
 app = Flask(__name__)
+app.secret_key = 'Tsltg7cmLvxCaqrJms9jhs4bC2t1wyUERNdj_hoO54okF-TrYHcFZLPaOgOod3mz'
 app.config.from_object(Config)
 
-# Initialize SQLAlchemy database
+
 db = SQLAlchemy(app)
 
-# Initialize Flask-OIDC
+
 oidc = OpenIDConnect(app)
 
-# Initialize CORS
+
 CORS(app)
 
-# Initialize AfricasTalking SMS
+
+@app.route('/')
+def home():
+    return 'Welcome to Customer Order Management'
+
 africastalking.initialize(Config.AFRICASTALKING_USERNAME, Config.AFRICASTALKING_API_KEY)
 sms = africastalking.SMS
 
-# Initialize database tables before first request
-@app.before_first_request
+# Function to create database tables
 def create_tables():
-    db.create_all()
+    with app.app_context():
+        db.create_all()
 
 # Function to send SMS
 def send_sms(recipient, message):
@@ -158,7 +161,14 @@ def get_orders():
     orders = Order.query.all()
     return jsonify([order.serialize() for order in orders]), 200
 
+
 cli = FlaskGroup(app)
+
 if __name__ == '__main__':
-    cli()
+   
+    create_tables()
+    
+   
     app.run(debug=True)
+
+

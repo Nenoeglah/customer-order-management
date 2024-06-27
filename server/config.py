@@ -7,6 +7,7 @@ class Config:
     OIDC_COOKIE_SECURE = False
     AFRICASTALKING_API_KEY = 'atsk_93f6b495ec5942eface502ae9c4f2b4db98cc4087765415fdf9898582333daf803d81785'
     AFRICASTALKING_USERNAME = 'Eglah Chepngeno'
+    # SECRET_KEY = 'Tsltg7cmLvxCaqrJms9jhs4bC2t1wyUERNdj_hoO54okF-TrYHcFZLPaOgOod3mz'
 
 
 
