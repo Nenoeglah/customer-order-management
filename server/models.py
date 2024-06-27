@@ -1,4 +1,3 @@
-
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship, validates
 from sqlalchemy.ext.declarative import declarative_base
@@ -8,6 +7,7 @@ from db import db
 Base = declarative_base()
 
 class Customer(db.Model):
+    __tablename__ = 'customer'
     id = Column(Integer, primary_key=True)
     name = Column(String(50), nullable=False)
     code = Column(String(10), nullable=False, unique=True)
@@ -23,6 +23,7 @@ class Customer(db.Model):
         }
 
 class Order(db.Model):
+    __tablename__ = 'order'
     id = Column(Integer, primary_key=True)
     item = Column(String(100), nullable=False)
     amount = Column(Integer, nullable=False)
@@ -40,7 +41,14 @@ class Order(db.Model):
             'date_created': self.date_created
         }
 
+    @validates('amount')
+    def validate_amount(self, key, amount):
+        if amount <= 0:
+            raise ValueError('Amount must be greater than zero')
+        return amount
+
 class User(db.Model):
+    __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
     username = Column(String(50), nullable=False, unique=True)
     email = Column(String(100), nullable=False, unique=True)
@@ -52,3 +60,10 @@ class User(db.Model):
             'username': self.username,
             'email': self.email
         }
+
+    @validates('password')
+    def validate_password(self, key, password):
+       
+        if len(password) < 4:
+            raise ValueError('Password must be at least 4 characters long')
+        return password

@@ -1,26 +1,39 @@
+
+
 from flask import Flask, request, jsonify
+from flask_sqlalchemy import SQLAlchemy
 from flask_oidc import OpenIDConnect
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from config import Config
 from models import Customer, Order, User
-from db import db
 import africastalking
+from flask.cli import FlaskGroup
 
+
+# Initialize Flask app
 app = Flask(__name__)
 app.config.from_object(Config)
 
-db.init_app(app)
+# Initialize SQLAlchemy database
+db = SQLAlchemy(app)
+
+# Initialize Flask-OIDC
 oidc = OpenIDConnect(app)
+
+# Initialize CORS
 CORS(app)
 
+# Initialize AfricasTalking SMS
 africastalking.initialize(Config.AFRICASTALKING_USERNAME, Config.AFRICASTALKING_API_KEY)
 sms = africastalking.SMS
 
+# Initialize database tables before first request
 @app.before_first_request
 def create_tables():
     db.create_all()
 
+# Function to send SMS
 def send_sms(recipient, message):
     try:
         response = sms.send(message, [recipient])
@@ -29,6 +42,7 @@ def send_sms(recipient, message):
         print('Error sending SMS:', str(e))
         return None
 
+# Authentication route
 @app.route('/auth', methods=['POST'])
 def auth():
     data = request.json
@@ -62,6 +76,7 @@ def auth():
 
     return jsonify({'message': 'Invalid action'}), 400
 
+# Customer routes
 @app.route('/customers', methods=['POST'])
 @oidc.require_login
 def add_customer():
@@ -96,6 +111,7 @@ def get_customers():
     customers = Customer.query.all()
     return jsonify([customer.serialize() for customer in customers]), 200
 
+# Order routes
 @app.route('/orders', methods=['POST'])
 @oidc.require_login
 def add_order():
@@ -142,5 +158,7 @@ def get_orders():
     orders = Order.query.all()
     return jsonify([order.serialize() for order in orders]), 200
 
+cli = FlaskGroup(app)
 if __name__ == '__main__':
+    cli()
     app.run(debug=True)
