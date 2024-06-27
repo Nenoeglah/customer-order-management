@@ -1,18 +1,18 @@
-
-
 from flask import Flask, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
 from flask_oidc import OpenIDConnect
+from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from config import Config
 from models import Customer, Order, User
+from db import db
 import africastalking
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
-db = SQLAlchemy(app)
+db.init_app(app)
 oidc = OpenIDConnect(app)
+CORS(app)
 
 africastalking.initialize(Config.AFRICASTALKING_USERNAME, Config.AFRICASTALKING_API_KEY)
 sms = africastalking.SMS
@@ -36,30 +36,30 @@ def auth():
     email = data.get('email')
     password = data.get('password')
     confirm_password = data.get('confirm_password')
-    
+
     if not username or not email or not password or not confirm_password:
         return jsonify({'message': 'All fields are required'}), 400
-    
+
     if password != confirm_password:
         return jsonify({'message': 'Passwords do not match'}), 400
-    
+
     if data.get('action') == 'login':
         user = User.query.filter_by(username=username).first()
         if not user or not check_password_hash(user.password, password):
             return jsonify({'message': 'Invalid credentials'}), 401
         return jsonify({'message': 'Login successful'}), 200
-    
+
     if data.get('action') == 'create_account':
         existing_user = User.query.filter_by(username=username).first()
         if existing_user:
             return jsonify({'message': 'Username already exists'}), 400
-        
+
         hashed_password = generate_password_hash(password, method='sha256')
         new_user = User(username=username, email=email, password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
         return jsonify({'message': 'Account created successfully'}), 201
-    
+
     return jsonify({'message': 'Invalid action'}), 400
 
 @app.route('/customers', methods=['POST'])

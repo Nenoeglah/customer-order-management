@@ -1,10 +1,9 @@
 
-
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship, validates
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
-from app import db
+from db import db
 
 Base = declarative_base()
 
@@ -14,7 +13,7 @@ class Customer(db.Model):
     code = Column(String(10), nullable=False, unique=True)
     phone_number = Column(String(15), nullable=False, unique=True)
     orders = relationship('Order', backref='customer', lazy=True)
-    
+
     def serialize(self):
         return {
             'id': self.id,
@@ -30,7 +29,7 @@ class Order(db.Model):
     customer_id = Column(Integer, ForeignKey('customer.id'), nullable=False)
     phone_number = Column(String(15), nullable=False)
     date_created = Column(DateTime, default=datetime.utcnow)
-    
+
     def serialize(self):
         return {
             'id': self.id,
@@ -46,7 +45,7 @@ class User(db.Model):
     username = Column(String(50), nullable=False, unique=True)
     email = Column(String(100), nullable=False, unique=True)
     password = Column(String(200), nullable=False)
-    
+
     def serialize(self):
         return {
             'id': self.id,
