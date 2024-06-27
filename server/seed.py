@@ -19,7 +19,7 @@ def seed_data():
     order1 = Order(item='Laptop', amount=1500, customer_id=1, phone_number='+254711966490')
     order2 = Order(item='Phone', amount=800, customer_id=2, phone_number='+254711123456')
 
-    
+    # Add instances to session and commit
     session.add_all([customer1, customer2, order1, order2])
     session.commit()
 
