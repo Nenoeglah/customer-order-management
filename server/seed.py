@@ -12,8 +12,8 @@ session = Session()
 
 def seed_data():
     
-    customer1 = Customer(name='John Doe', code='JD001', phone_number='+254711966490')
-    customer2 = Customer(name='Jane Smith', code='JS002', phone_number='+254711123456')
+    customer1 = Customer(name='Eglah', code='JD001', phone_number='+254711966490')
+    customer2 = Customer(name='Milgo', code='JS002', phone_number='+254711123456')
 
    
     order1 = Order(item='Laptop', amount=1500, customer_id=1, phone_number='+254711966490')
