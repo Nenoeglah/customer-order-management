@@ -1,4 +1,5 @@
 
+
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_oidc import OpenIDConnect
@@ -9,20 +10,13 @@ from models import Customer, Order, User
 import africastalking
 from flask.cli import FlaskGroup
 
-
 app = Flask(__name__)
-app.secret_key = 'Tsltg7cmLvxCaqrJms9jhs4bC2t1wyUERNdj_hoO54okF-TrYHcFZLPaOgOod3mz'
+app.secret_key = '1234'
 app.config.from_object(Config)
 
-
 db = SQLAlchemy(app)
-
-
 oidc = OpenIDConnect(app)
-
-
 CORS(app)
-
 
 @app.route('/')
 def home():
@@ -31,12 +25,10 @@ def home():
 africastalking.initialize(Config.AFRICASTALKING_USERNAME, Config.AFRICASTALKING_API_KEY)
 sms = africastalking.SMS
 
-# Function to create database tables
 def create_tables():
     with app.app_context():
         db.create_all()
 
-# Function to send SMS
 def send_sms(recipient, message):
     try:
         response = sms.send(message, [recipient])
@@ -45,7 +37,6 @@ def send_sms(recipient, message):
         print('Error sending SMS:', str(e))
         return None
 
-# Authentication route
 @app.route('/auth', methods=['POST'])
 def auth():
     data = request.json
@@ -79,7 +70,6 @@ def auth():
 
     return jsonify({'message': 'Invalid action'}), 400
 
-# Customer routes
 @app.route('/customers', methods=['POST'])
 @oidc.require_login
 def add_customer():
@@ -114,7 +104,6 @@ def get_customers():
     customers = Customer.query.all()
     return jsonify([customer.serialize() for customer in customers]), 200
 
-# Order routes
 @app.route('/orders', methods=['POST'])
 @oidc.require_login
 def add_order():
@@ -161,14 +150,8 @@ def get_orders():
     orders = Order.query.all()
     return jsonify([order.serialize() for order in orders]), 200
 
-
 cli = FlaskGroup(app)
 
 if __name__ == '__main__':
-   
     create_tables()
-    
-   
     app.run(debug=True)
-
-
